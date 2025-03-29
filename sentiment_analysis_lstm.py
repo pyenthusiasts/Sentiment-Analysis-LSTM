@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # Set the vocabulary size and maximum length of each review
 vocab_size = 10000
-max_length = 300
+max_length = 300 
 
 # Load the IMDB dataset
 (X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=vocab_size)
