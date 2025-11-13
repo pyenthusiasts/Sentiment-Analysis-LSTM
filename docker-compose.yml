@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Training service
+  sentiment-train:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentiment-lstm-train
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TF_CPP_MIN_LOG_LEVEL=2
+    command: python -c "from sentiment_analysis.train import Trainer; trainer = Trainer(); data = trainer.prepare_data(); trainer.train(*data[0], *data[1], epochs=5)"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+  # API service
+  sentiment-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentiment-lstm-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models:ro
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MODEL_PATH=/app/models/sentiment_lstm_model.h5
+    command: uvicorn sentiment_analysis.api:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - sentiment-train
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    restart: unless-stopped
+
+  # Jupyter notebook service
+  sentiment-notebook:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentiment-lstm-notebook
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/app/notebooks
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./src:/app/src
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+volumes:
+  data:
+  models:
+  outputs:
+  logs:
+
+networks:
+  default:
+    name: sentiment-network
