@@ -1,147 +1,183 @@
-# Sentiment Analysis with LSTM - Movie Reviews
+# Sentiment Analysis with LSTM
 
-This project demonstrates how to build a deep learning model using an **LSTM (Long Short-Term Memory)** neural network for sentiment analysis of movie reviews. The model is trained on the IMDB dataset to classify movie reviews as positive or negative.
+<div align="center">
+
+A professional, modular sentiment analysis framework using LSTM neural networks for movie review classification.
+
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.10+-orange.svg)](https://www.tensorflow.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+</div>
+
+## Overview
+
+This project provides a complete, production-ready implementation of sentiment analysis using Long Short-Term Memory (LSTM) neural networks. Built on TensorFlow/Keras, it offers a modular architecture, comprehensive testing, multiple interfaces (CLI, Python API, Jupyter notebooks), and extensive documentation.
+
+### Key Features
+
+- **Modular Architecture**: Clean separation of concerns with dedicated modules for data loading, model building, training, prediction, and visualization
+- **Bidirectional LSTM**: Captures dependencies from both forward and backward sequences for improved accuracy
+- **Multiple Interfaces**:
+  - Python API for programmatic access
+  - CLI tools for command-line usage
+  - Jupyter notebooks for interactive exploration
+- **Comprehensive Testing**: Unit tests with pytest for reliability
+- **Production Ready**: Model persistence, logging, configuration management
+- **Rich Visualizations**: Training curves, confusion matrices, ROC curves, prediction distributions
+- **Easy Installation**: Simple pip installation with all dependencies
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Features](#features)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Examples](#examples)
-6. [Contributing](#contributing)
-7. [License](#license)
-
-## Introduction
-
-Sentiment analysis is a common natural language processing (NLP) task that involves classifying text into positive or negative sentiments. This project uses a deep learning approach with a **Bidirectional LSTM** neural network to perform sentiment analysis on movie reviews from the IMDB dataset. LSTMs are well-suited for this task because they are capable of learning long-term dependencies in sequential data.
-
-## Features
-
-- **LSTM-based Neural Network**: A deep learning model using LSTM layers to handle the sequential nature of text data.
-- **Bidirectional LSTM**: Utilizes a bidirectional LSTM to capture dependencies from both forward and backward sequences.
-- **Embedding Layer**: Converts words into dense vector representations to capture semantic relationships.
-- **Dropout Regularization**: Prevents overfitting by randomly dropping neurons during training.
-- **Text Preprocessing**: Automatic tokenization and padding to handle varying input lengths.
-- **Sentiment Prediction**: Predicts whether a given movie review is positive or negative.
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Usage](#usage)
+- [Model Architecture](#model-architecture)
+- [Configuration](#configuration)
+- [Examples](#examples)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Installation
 
 ### Prerequisites
 
-Ensure you have the following installed:
+- Python 3.8 or higher
+- pip package manager
 
-- Python 3.x
-- TensorFlow
-- Matplotlib
-
-### Install Required Packages
-
-If you haven't installed TensorFlow and Matplotlib yet, you can do so using pip:
+### Install from Source
 
 ```bash
-pip install tensorflow matplotlib
+# Clone the repository
+git clone https://github.com/pyenthusiasts/Sentiment-Analysis-LSTM.git
+cd Sentiment-Analysis-LSTM
+
+# Install the package
+pip install -e .
+```
+
+### Install Dependencies Only
+
+```bash
+pip install -r requirements.txt
+```
+
+## Quick Start
+
+### Python API
+
+```python
+from sentiment_analysis.train import Trainer
+from sentiment_analysis.predict import Predictor
+
+# Train a model
+trainer = Trainer()
+(X_train, y_train), (X_test, y_test) = trainer.prepare_data()
+history = trainer.train(X_train, y_train, X_test, y_test)
+
+# Make predictions
+predictor = Predictor()
+result = predictor.predict_text("Amazing movie! Loved it!")
+print(f"Sentiment: {result['sentiment']} (Score: {result['score']:.2f})")
+```
+
+## Project Structure
+
+```
+Sentiment-Analysis-LSTM/
+├── src/sentiment_analysis/      # Main package
+│   ├── config.py                # Configuration
+│   ├── data_loader.py           # Data loading
+│   ├── model.py                 # Model architecture
+│   ├── train.py                 # Training logic
+│   ├── predict.py               # Prediction logic
+│   ├── utils.py                 # Utilities
+│   └── visualization.py         # Visualizations
+├── tests/                       # Unit tests
+├── examples/                    # Example scripts
+├── notebooks/                   # Jupyter notebooks
+├── requirements.txt             # Dependencies
+└── setup.py                     # Package setup
 ```
 
 ## Usage
 
-1. **Clone the Repository**:
+### Training a Model
 
-   Clone the repository to your local machine:
+```python
+from sentiment_analysis.train import Trainer
 
-   ```bash
-   git clone https://github.com/your-username/sentiment-analysis-lstm.git
-   ```
+trainer = Trainer()
+(X_train, y_train), (X_test, y_test) = trainer.prepare_data()
+history = trainer.train(X_train, y_train, X_test, y_test, epochs=5)
+```
 
-2. **Navigate to the Directory**:
+### Making Predictions
 
-   Go to the project directory:
+```python
+from sentiment_analysis.predict import Predictor
 
-   ```bash
-   cd sentiment-analysis-lstm
-   ```
+predictor = Predictor()
+result = predictor.predict_text("This movie was amazing!")
+print(f"Sentiment: {result['sentiment']}")
+print(f"Confidence: {result['confidence']:.2%}")
+```
 
-3. **Run the Script**:
+## Model Architecture
 
-   Run the script using Python:
+1. **Embedding Layer**: 128-dimensional word embeddings
+2. **Bidirectional LSTM**: 64 units processing in both directions
+3. **Dropout**: 0.5 rate for regularization
+4. **LSTM**: 32 units  
+5. **Dense Output**: Sigmoid activation for binary classification
 
-   ```bash
-   python sentiment_analysis_lstm.py
-   ```
+## Configuration
 
-### Running the Program
+Edit `src/sentiment_analysis/config.py` to customize:
 
-When you run the script, it will:
-
-- Load the IMDB dataset.
-- Preprocess the text data (tokenization and padding).
-- Define and compile an LSTM-based neural network model.
-- Train the model on the training set and validate it on a validation set.
-- Evaluate the model on the test set.
-- Plot the training and validation accuracy and loss over epochs.
-- Predict the sentiment of a new movie review sample.
+- `VOCAB_SIZE`: 10000 (vocabulary size)
+- `MAX_LENGTH`: 300 (sequence length)
+- `EMBEDDING_DIM`: 128
+- `BATCH_SIZE`: 128
+- `EPOCHS`: 5
 
 ## Examples
 
-### Output
+Run example scripts:
 
-The script will produce outputs similar to:
-
-1. **Test Accuracy**: The accuracy of the model on the test dataset, for example:
-
-   ```
-   Test Accuracy: 0.86
-   ```
-
-2. **Training and Validation Curves**: Plots of accuracy and loss over the training epochs.
-
-   ![Accuracy and Loss Plot](accuracy_loss_plot.png)
-
-3. **Predicted Sentiment**: Displays the predicted sentiment (positive or negative) for a new review.
-
-   ```
-   Predicted Sentiment: Positive
-   ```
-
-### Predicting New Reviews
-
-To predict the sentiment of a new movie review, you can modify the `new_review` variable in the script:
-
-```python
-new_review = "This movie was fantastic! I really enjoyed the story and the acting was superb."
+```bash
+python examples/basic_usage.py
+python examples/custom_training.py
+python examples/prediction_only.py
 ```
 
-Run the script again to see the predicted sentiment.
+## Testing
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=sentiment_analysis
+```
 
 ## Contributing
 
-Contributions are welcome! If you have ideas for new features, improvements, or bug fixes, please feel free to open an issue or create a pull request.
-
-### Steps to Contribute
-
-1. **Fork the Repository**: Click the 'Fork' button at the top right of this page.
-2. **Clone Your Fork**: Clone your forked repository to your local machine.
-   ```bash
-   git clone https://github.com/your-username/sentiment-analysis-lstm.git
-   ```
-3. **Create a Branch**: Create a new branch for your feature or bug fix.
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-4. **Make Changes**: Make your changes and commit them with a descriptive message.
-   ```bash
-   git commit -m "Add: feature description"
-   ```
-5. **Push Changes**: Push your changes to your forked repository.
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-6. **Create a Pull Request**: Go to the original repository on GitHub and create a pull request.
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Acknowledgments
+
+- Built with [TensorFlow](https://www.tensorflow.org/) and [Keras](https://keras.io/)
+- IMDB dataset from [Stanford AI Lab](http://ai.stanford.edu/~amaas/data/sentiment/)
 
 ---
 
-Thank you for using the Sentiment Analysis with LSTM! If you have any questions or feedback, feel free to reach out. Happy coding! 😊
+<div align="center">
+Made with passion for NLP and Deep Learning
+</div>
